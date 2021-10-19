@@ -5,6 +5,6 @@ BSM455 FİNANSAL BİLGİ TEKNOLOJİLERİ DERSİ kapsamında hazırlayacağımız
 
 Projede yer alan grup üyeleri : 
 
-G181210111 - Necdet Can ÖZBEK
-G191210103 - Ahmet Selçuk PARLAK
-G191210013 - Eren İbrahim KAVLAK
+G181210111 - Necdet Can ÖZBEK <br>
+G191210103 - Ahmet Selçuk PARLAK <br>
+G191210013 - Eren İbrahim KAVLAK <br>
