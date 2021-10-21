@@ -1,71 +1,102 @@
-import { StatusBar } from 'expo-status-bar';
 
-import {  Text} from 'react-native';
-import React, { useState } from "react";
-import { View, Picker, StyleSheet } from "react-native";
+import React, { useState,useEffect } from 'react';
+import { StyleSheet, Picker, Text, View, SafeAreaView, FlatList, ActivityIndicator } from 'react-native';
 import RNPickerSelect from "react-native-picker-select";
 
 
-export default function App() {
-    const [ country, setCountry ] = useState("");
-    const [ city, setCity ] = useState("");
-    const [ district, setDistrict ] = useState("");
-    return (
-        <View style={styles.container}>
-            <Text>
-                {country ?
-                  `Seçilen ülke ${country}` :
+const ulkeURL = "https://ezanvakti.herokuapp.com/ulkeler";
+const sehirURL = "https://ezanvakti.herokuapp.com/sehirler/";
+const ilceURL = "https://ezanvakti.herokuapp.com/ilce/";
+
+
+const App = () => {
+
+  const [isLoadingCountry, setLoadingCountry] = useState(true);
+  const [isLoadingCity, setLoadingCity] = useState(true);
+  const [isLoadingDistrict, setLoadingDistrict] = useState(true);
+  const [countryData, setCountryData] = useState([]);
+  const [cityData, setCityData] = useState([]);
+  const [districtData, setDistrictData] = useState([]);
+  const [countrySelected, setCountrySelected] = useState([]);
+  const [citySelected, setCitySelected] = useState([]);
+  const [districtSelected, setDistrictSelected] = useState([]);
+
+  useEffect(() => {
+    fetch(ulkeURL)
+    .then((response) => response.json())
+    .then((json) => setCountryData(json))
+    .then(setLoadingCountry(false));
+  })
+
+ 
+    
+      useEffect(() => {
+        if (countrySelected != "") {
+        
+        fetch(sehirURL+countrySelected)
+        .then((response) => response.json())
+        .then((json) => setCityData(json))
+        .then(setLoadingCity(false));
+        
+      }
+      })
+    
+  
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <Text>
+                {countrySelected ?
+                  `Seçilen ülke ${countrySelected}` :
                     "Lütfen ülke seçiniz"
                 }
-            </Text>
-            <RNPickerSelect
-                onValueChange={(country) => setCountry(country)}
-                items={[
-                    { label: "Amerika", value: "Amerika" },
-                    { label: "İngiltere", value: "İngiltere" },
-                    { label: "Çin", value: "Çin" },
-                    { label: "Rusya", value: "Rusya" },
-                    { label: "Türkiye", value: "Türkiye" },
-                    { label: "Japonya", value: "Japonya" },
-                ]}
-            />
-            <Text>
-                {city ?
-                  `Seçilen şehir ${city}` :
-                    "Lütfen şehir seçiniz"
+      </Text>
+      {isLoadingCountry ? (<ActivityIndicator /> ) : ( 
+      
+       <RNPickerSelect
+                onValueChange={(countrySelected) => setCountrySelected(countrySelected)}
+                items={countryData.map(obj =>({
+                  label: obj.UlkeAdi,
+                  value: obj.UlkeID,
                 }
-            </Text>
-            <RNPickerSelect
-                onValueChange={(city) => setCity(city)}
-                items={[
-                    { label: "Washington", value: "Washington" },
-                    { label: "Londra", value: "Londra" },
-                    { label: "Pekin", value: "Pekin" },
-                    { label: "Moskova", value: "Moskova" },
-                    { label: "İstanbul", value: "İstanbul" },
-                    { label: "Tokyo", value: "Tokyo" },
-                ]}
-            />
-             <Text>
-                {district ?
-                  `Seçilen ilçe ${district}` :
-                    "Lütfen ilçe seçiniz"
-                }
-            </Text>
-            <RNPickerSelect
-                onValueChange={(district) => setDistrict(district)}
-                items={[
-                    { label: "Ümraniye", value: "Ümraniye" },
-                    { label: "Esenler", value: "Esenler" },
-                    { label: "Bağcılar", value: "Bağcılar" },
-                    { label: "Avcılar", value: "Avcılar" },
-                    { label: "Beşiktaş", value: "Beşiktaş" },
-                    { label: "Kadıköy", value: "Kadıköy" },
-                ]}
-            />
-        </View>
-    );
+
+                ))
+                 }                         
+       />
+       )}
+       {isLoadingCity ? (<ActivityIndicator /> ) : ( 
+      
+      <RNPickerSelect
+               onValueChange={(citySelected) => setCitySelected(citySelected)}
+               items={cityData.map(obj =>({
+                 label: obj.SehirAdiEn,
+                 value: obj.SehirID,
+               }
+
+               ))
+                }                         
+      />
+      )}
+      {isLoadingDistrict ? (<ActivityIndicator /> ) : ( 
+      
+      <RNPickerSelect
+               onValueChange={(districtSelected) => setDistrictSelected(districtSelected)}
+               items={districtData.map(obj =>({
+                 label: obj.UlkeAdi,
+                 value: obj.UlkeID,
+               }
+
+               ))
+                }                         
+      />
+      )}
+
+      
+    </SafeAreaView>
+  );
 }
+
+
 
 const styles = StyleSheet.create({
   container: {
@@ -75,3 +106,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+
+export default App;
