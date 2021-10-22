@@ -6,40 +6,72 @@ import RNPickerSelect from "react-native-picker-select";
 
 const ulkeURL = "https://ezanvakti.herokuapp.com/ulkeler";
 const sehirURL = "https://ezanvakti.herokuapp.com/sehirler/";
-const ilceURL = "https://ezanvakti.herokuapp.com/ilce/";
+const ilceURL = "https://ezanvakti.herokuapp.com/ilceler/";
 
+const cityDataFetch = (countrySelected,setCityData,setLoadingCity) => {
+  useEffect(() => {
+    if (countrySelected != "") {
+    
+    fetch(sehirURL+countrySelected)
+    .then((response) => response.json())
+    .then((json) => setCityData(json))
+    .then(setLoadingCity(false));
+    
+  }
+  })
+};
 
 const App = () => {
 
   const [isLoadingCountry, setLoadingCountry] = useState(true);
   const [isLoadingCity, setLoadingCity] = useState(true);
   const [isLoadingDistrict, setLoadingDistrict] = useState(true);
-  const [countryData, setCountryData] = useState([]);
-  const [cityData, setCityData] = useState([]);
-  const [districtData, setDistrictData] = useState([]);
-  const [countrySelected, setCountrySelected] = useState([]);
-  const [citySelected, setCitySelected] = useState([]);
-  const [districtSelected, setDistrictSelected] = useState([]);
+  const [countryData, setCountryData] = useState([0]);
+  const [cityData, setCityData] = useState([0]);
+  const [districtData, setDistrictData] = useState([0]);
+  const [districtDataDump, setDistrictDataDump] = useState([0]);
+  const [countrySelected, setCountrySelected] = useState(0);
+  const [citySelected, setCitySelected] = useState(0);
+  const [districtSelected, setDistrictSelected] = useState(0);
+  const [countrySelectedDump, setCountrySelectedDump] = useState(0);
+  const [citySelectedDump, setCitySelectedDump] = useState(0);
+  const [districtSelectedDump, setDistrictSelectedDump] = useState(0);
+  const [firstDataGet, setFirstDataGet] = useState(true);
 
   useEffect(() => {
+    if(firstDataGet){
     fetch(ulkeURL)
     .then((response) => response.json())
     .then((json) => setCountryData(json))
+    .then(setFirstDataGet(false))
     .then(setLoadingCountry(false));
+    }
+    if(countrySelected === undefined ||countrySelected == null){
+
+    }
+    else if(countrySelected != countrySelectedDump){
+      fetch(sehirURL+countrySelected)
+      .then(setCitySelectedDump(0))
+      .then(setCitySelected(0))
+    .then((response) => response.json())
+    .then((json) => setCityData(json))
+    .then(setCountrySelectedDump(countrySelected))
+    .then(setLoadingCity(false));
+    }
+    if(citySelected === undefined ||citySelected == null){
+
+    }
+    else if(citySelected != citySelectedDump){
+      fetch(ilceURL+citySelected)
+      .then(setLoadingDistrict(true))
+    .then((response) => response.json())
+    .then((json) => setDistrictData(json))
+    .then(setCitySelectedDump(citySelected))
+    .then(setLoadingDistrict(false));
+    }
   })
 
- 
-    
-      useEffect(() => {
-        if (countrySelected != "") {
-        
-        fetch(sehirURL+countrySelected)
-        .then((response) => response.json())
-        .then((json) => setCityData(json))
-        .then(setLoadingCity(false));
-        
-      }
-      })
+  
     
   
 
@@ -64,6 +96,12 @@ const App = () => {
                  }                         
        />
        )}
+       <Text>
+                {countrySelected ?
+                  `Seçilen Şehir ${citySelected}` :
+                    "Lütfen Şehir seçiniz"
+                }
+      </Text>
        {isLoadingCity ? (<ActivityIndicator /> ) : ( 
       
       <RNPickerSelect
@@ -77,13 +115,19 @@ const App = () => {
                 }                         
       />
       )}
+      <Text>
+                {countrySelected ?
+                  `Seçilen ilçe ${districtSelected}` :
+                    "Lütfen ilçe seçiniz"
+                }
+      </Text>
       {isLoadingDistrict ? (<ActivityIndicator /> ) : ( 
       
       <RNPickerSelect
                onValueChange={(districtSelected) => setDistrictSelected(districtSelected)}
                items={districtData.map(obj =>({
-                 label: obj.UlkeAdi,
-                 value: obj.UlkeID,
+                 label: obj.IlceAdiEn,
+                 value: obj.IlceID,
                }
 
                ))
