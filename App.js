@@ -41,8 +41,11 @@ const App = () => {
   useEffect(() => {
     if(firstDataGet){
     fetch(ulkeURL)
+    .then(setCitySelectedDump(0))
+    .then(setCitySelected(0))
     .then((response) => response.json())
     .then((json) => setCountryData(json))
+    .then(setCountryData( countryData.slice(1) ))
     .then(setFirstDataGet(false))
     .then(setLoadingCountry(false));
     }
@@ -53,8 +56,10 @@ const App = () => {
       fetch(sehirURL+countrySelected)
       .then(setCitySelectedDump(0))
       .then(setCitySelected(0))
+      .then(setDistrictData([0]))
     .then((response) => response.json())
     .then((json) => setCityData(json))
+    .then(setCityData( cityData.slice(1) ))
     .then(setCountrySelectedDump(countrySelected))
     .then(setLoadingCity(false));
     }
@@ -66,6 +71,7 @@ const App = () => {
       .then(setLoadingDistrict(true))
     .then((response) => response.json())
     .then((json) => setDistrictData(json))
+    .then(setDistrictData( districtData.slice(1) ))
     .then(setCitySelectedDump(citySelected))
     .then(setLoadingDistrict(false));
     }
@@ -88,8 +94,10 @@ const App = () => {
        <RNPickerSelect
                 onValueChange={(countrySelected) => setCountrySelected(countrySelected)}
                 items={countryData.map(obj =>({
+                  
                   label: obj.UlkeAdi,
                   value: obj.UlkeID,
+                  
                 }
 
                 ))
