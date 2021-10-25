@@ -8,7 +8,7 @@ import Konum from './src/Screen/Konum/Index';
 export default function App() {
   return (
     <NavigationContainer>
-      <Drawer.Navigator initialRouteName="Konum">
+      <Drawer.Navigator initialRouteName="Vakit">
       <Drawer.Screen name="Konum" component={Konum} />
       <Drawer.Screen name="Vakit" component={Vakit} />
       </Drawer.Navigator>

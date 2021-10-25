@@ -5,6 +5,7 @@ import RNPickerSelect from "react-native-picker-select";
 const ulkeURL = "https://ezanvakti.herokuapp.com/ulkeler";
 const sehirURL = "https://ezanvakti.herokuapp.com/sehirler/";
 const ilceURL = "https://ezanvakti.herokuapp.com/ilceler/";
+const vakitURL = "https://ezanvakti.herokuapp.com/vakitler/";
 
 const placeholderUlke = {
   label: 'Ülkeyi seçiniz...',
@@ -39,10 +40,11 @@ export default function KonumScreen ({ navigation }) {
     const [isLoadingCountry, setLoadingCountry] = useState(true);
     const [isLoadingCity, setLoadingCity] = useState(true);
     const [isLoadingDistrict, setLoadingDistrict] = useState(true);
+    const [isLoadingSalaahData, setLoadingSalaahData] = useState(true);
     const [countryData, setCountryData] = useState([0]);
     const [cityData, setCityData] = useState([0]);
     const [districtData, setDistrictData] = useState([0]);
-    const [districtDataDump, setDistrictDataDump] = useState([0]);
+    const [salaahTimeData, setSalaahTimeData] = useState([0]);
     const [countrySelected, setCountrySelected] = useState(0);
     const [citySelected, setCitySelected] = useState(0);
     const [districtSelected, setDistrictSelected] = useState(0);
@@ -87,6 +89,18 @@ export default function KonumScreen ({ navigation }) {
       .then(setDistrictData( districtData.slice(1) ))
       .then(setCitySelectedDump(citySelected))
       .then(setLoadingDistrict(false));
+      }
+      if(districtSelected === undefined ||districtSelected == null){
+  
+      }
+      else if(districtSelected != districtSelectedDump){
+        fetch(vakitURL+districtSelected)
+        .then(setLoadingSalaahData(true))
+      .then((response) => response.json())
+      .then((json) => setSalaahTimeData(json))
+      .then(setSalaahTimeData( salaahTimeData.slice(1) ))
+      .then(setDistrictSelectedDump(districtSelected))
+      .then(setLoadingSalaahData(false));
       }
     })
     return (
@@ -147,10 +161,10 @@ export default function KonumScreen ({ navigation }) {
         </View>
         )}
   
-      {isLoadingDistrict ? (<ActivityIndicator /> ) : ( 
+      {isLoadingSalaahData ? (<ActivityIndicator /> ) : ( 
             <TouchableOpacity 
               style={[styles.btn,styles.btnPrimary,styles.btn300]} 
-              onPress={() => navigation.navigate('Vakit')}>
+              onPress={() => navigation.navigate('Vakit', salaahTimeData)}>
                   <Text style={[styles.largeText,styles.textWhite]}>Kaydet</Text>
             </TouchableOpacity>
       )}
