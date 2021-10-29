@@ -2,18 +2,27 @@ import React, { useState,useEffect } from 'react';
 import { StyleSheet, Text, View, SafeAreaView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import RNPickerSelect from "react-native-picker-select";
 import * as SQLite from 'expo-sqlite';
-
+/*
 const ulkeURL = "https://ezanvakti.herokuapp.com/ulkeler";
 const sehirURL = "https://ezanvakti.herokuapp.com/sehirler/";
 const ilceURL = "https://ezanvakti.herokuapp.com/ilceler/";
 const vakitURL = "https://ezanvakti.herokuapp.com/vakitler/";
+*/
+const ulkeURL = "https://78ebb5ba-b073-47ac-994e-e8b6a596b8f4.mock.pstmn.io/erenx/ulkeler";
+const sehirURL = "https://78ebb5ba-b073-47ac-994e-e8b6a596b8f4.mock.pstmn.io/erenx/sehirler/";
+const ilceURL = "https://78ebb5ba-b073-47ac-994e-e8b6a596b8f4.mock.pstmn.io/erenx/ilceler/";
+const vakitURL = "https://78ebb5ba-b073-47ac-994e-e8b6a596b8f4.mock.pstmn.io/erenx/vakitler/";
+
+
 
 const db = SQLite.openDatabase("db.db");
 
 db.transaction(tx => {
+
   tx.executeSql(
-    "create table if not exists items (id integer primary key not null, aksam text, ayinsekliurl text, gunes text, gunesbatis text, gunesdogus text, hicritarihkisa text, hicritarihuzun text, ikindi text, imsak text, miladitarihkisa text, miladitarihuzun text, ogle text, yatsi text);"
+    "create table if not exists items (id integer primary key not null, aksam text, ayinsekliurl text, gunes text, gunesbatis text, gunesdogus text, hicritarihkisa text, hicritarihuzun text, ikindi text, imsak text, miladitarihkisa text, miladitarihuzun text, ogle text, yatsi text, district integer);"
   );
+  //console.log("calisti");
 });
 
 const placeholderUlke = {
@@ -35,6 +44,7 @@ const placeholderIlce = {
 
 
 export default function KonumScreen ({ navigation }) {
+    const [sqlReady, setSqlReady] = useState(true);
     const [isLoadingCountry, setLoadingCountry] = useState(true);
     const [isLoadingCity, setLoadingCity] = useState(true);
     const [isLoadingDistrict, setLoadingDistrict] = useState(true);
@@ -51,8 +61,22 @@ export default function KonumScreen ({ navigation }) {
     const [citySelectedDump, setCitySelectedDump] = useState(0);
     const [districtSelectedDump, setDistrictSelectedDump] = useState(0);
     const [firstDataGet, setFirstDataGet] = useState(true);
+    
   
     useEffect(() => {
+      if(sqlReady){
+       
+        db.transaction(tx => {tx.executeSql("select id from items",
+        [],
+        (tx, results) => { 
+         // console.log(results.rows.length);
+          if(results.rows.length > 10){
+         // console.log(results.rows.item(0));
+          navigation.navigate('Vakit');
+        }
+          });});
+        setSqlReady(false);
+      }
       if(firstDataGet){
       fetch(ulkeURL)
       .then(setCitySelectedDump(0))
@@ -108,8 +132,9 @@ export default function KonumScreen ({ navigation }) {
         db.transaction(tx => {tx.executeSql("delete from items");});
         salaahTimeData.map( data =>(
           
-        db.transaction(tx => {tx.executeSql("insert into items (aksam, ayinsekliurl, gunes, gunesbatis, gunesdogus, hicritarihkisa, hicritarihuzun, ikindi, imsak, miladitarihkisa, miladitarihuzun, ogle, yatsi) values (?,?,?,?,?,?,?,?,?,?,?,?,?);",[data.Aksam, data.AyinSekliURL, data.Gunes, data.GunesBatis, data.GunesDogus, data.HicriTarihKisa, data.HicriTarihUzun, data.Ikindi,data.Imsak, data.MiladiTarihKisa, data.MiladiTarihUzun, data.Ogle, data.Yatsi]);},null,null))
+        db.transaction(tx => {tx.executeSql("insert into items (aksam, ayinsekliurl, gunes, gunesbatis, gunesdogus, hicritarihkisa, hicritarihuzun, ikindi, imsak, miladitarihkisa, miladitarihuzun, ogle, yatsi, district) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?);",[data.Aksam, data.AyinSekliURL, data.Gunes, data.GunesBatis, data.GunesDogus, data.HicriTarihKisa, data.HicriTarihUzun, data.Ikindi,data.Imsak, data.MiladiTarihKisa, data.MiladiTarihUzun, data.Ogle, data.Yatsi, districtSelected]);},null,null))
         );
+        console.log("SQL YAZILDI");
         setWriteSQL(false);
         setLoadingSalaahData(false);
       }
@@ -175,7 +200,7 @@ export default function KonumScreen ({ navigation }) {
       {isLoadingSalaahData ? (<ActivityIndicator /> ) : ( 
             <TouchableOpacity 
               style={[styles.btn,styles.btnPrimary,styles.btn300]} 
-              onPress={() => navigation.navigate('Vakit', salaahTimeData)}>
+              onPress={() => navigation.navigate('Vakit')}>
                   <Text style={[styles.largeText,styles.textWhite]}>Kaydet</Text>
             </TouchableOpacity>
       )}
