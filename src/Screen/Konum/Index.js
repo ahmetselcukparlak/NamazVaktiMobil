@@ -1,11 +1,20 @@
 import React, { useState,useEffect } from 'react';
 import { StyleSheet, Text, View, SafeAreaView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import RNPickerSelect from "react-native-picker-select";
+import * as SQLite from 'expo-sqlite';
 
 const ulkeURL = "https://ezanvakti.herokuapp.com/ulkeler";
 const sehirURL = "https://ezanvakti.herokuapp.com/sehirler/";
 const ilceURL = "https://ezanvakti.herokuapp.com/ilceler/";
 const vakitURL = "https://ezanvakti.herokuapp.com/vakitler/";
+
+const db = SQLite.openDatabase("db.db");
+
+db.transaction(tx => {
+  tx.executeSql(
+    "create table if not exists items (id integer primary key not null, aksam text, ayinsekliurl text, gunes text, gunesbatis text, gunesdogus text, hicritarihkisa text, hicritarihuzun text, ikindi text, imsak text, miladitarihkisa text, miladitarihuzun text, ogle text, yatsi text);"
+  );
+});
 
 const placeholderUlke = {
   label: 'Ülkeyi seçiniz...',
@@ -23,24 +32,14 @@ const placeholderIlce = {
   color: '#9EA0A4',
 };
 
-const cityDataFetch = (countrySelected,setCityData,setLoadingCity) => {
-  useEffect(() => {
-    if (countrySelected != "") {
-    
-    fetch(sehirURL+countrySelected)
-    .then((response) => response.json())
-    .then((json) => setCityData(json))
-    .then(setLoadingCity(false));
-    
-  }
-  })
-};
+
 
 export default function KonumScreen ({ navigation }) {
     const [isLoadingCountry, setLoadingCountry] = useState(true);
     const [isLoadingCity, setLoadingCity] = useState(true);
     const [isLoadingDistrict, setLoadingDistrict] = useState(true);
     const [isLoadingSalaahData, setLoadingSalaahData] = useState(true);
+    const [writeSQL, setWriteSQL] = useState(true);
     const [countryData, setCountryData] = useState([0]);
     const [cityData, setCityData] = useState([0]);
     const [districtData, setDistrictData] = useState([0]);
@@ -99,8 +98,20 @@ export default function KonumScreen ({ navigation }) {
       .then((response) => response.json())
       .then((json) => setSalaahTimeData(json))
       .then(setSalaahTimeData( salaahTimeData.slice(1) ))
-      .then(setDistrictSelectedDump(districtSelected))
-      .then(setLoadingSalaahData(false));
+      .then(setDistrictSelectedDump(districtSelected));
+      //.then(setLoadingSalaahData(false));
+      }
+      if(salaahTimeData === undefined ||salaahTimeData == null || salaahTimeData.length < 2){
+  
+      }
+      else if(writeSQL){
+        db.transaction(tx => {tx.executeSql("delete from items");});
+        salaahTimeData.map( data =>(
+          
+        db.transaction(tx => {tx.executeSql("insert into items (aksam, ayinsekliurl, gunes, gunesbatis, gunesdogus, hicritarihkisa, hicritarihuzun, ikindi, imsak, miladitarihkisa, miladitarihuzun, ogle, yatsi) values (?,?,?,?,?,?,?,?,?,?,?,?,?);",[data.Aksam, data.AyinSekliURL, data.Gunes, data.GunesBatis, data.GunesDogus, data.HicriTarihKisa, data.HicriTarihUzun, data.Ikindi,data.Imsak, data.MiladiTarihKisa, data.MiladiTarihUzun, data.Ogle, data.Yatsi]);},null,null))
+        );
+        setWriteSQL(false);
+        setLoadingSalaahData(false);
       }
     })
     return (
