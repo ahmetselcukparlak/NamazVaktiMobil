@@ -3,6 +3,7 @@ import {Button,StyleSheet, View, Text,SafeAreaView, TouchableOpacity , ActivityI
 import { SectionGrid } from 'react-native-super-grid';
 import * as SQLite from 'expo-sqlite';
 
+
 const db = SQLite.openDatabase("db.db");
 
 const getCurrentDate=()=>{
@@ -14,7 +15,7 @@ const getCurrentDate=()=>{
   var numberMonth = parseInt(month);
 
   //Alert.alert(date + '-' + month + '-' + year);
- if(number < 10 && numberMonth >= 9){
+ if(number < 10 && numberMonth > 9){
   return '0'+date + '.' + month + '.' + year;//format: dd-mm-yyyy;
  }
  else if(number < 10 && month < 10){
@@ -34,6 +35,7 @@ export default function VakitScreen({ route, navigation }){
     const [timeDataSQL, setTimeDataSQL] = useState([]);              //30 günlük sqlden cekilen bilgi
     const [timeDataCurrentDay, setTimeDataCurrentDay] = useState([]); //bugüne ait olan bilgi
     const [firstRun, setFirstRun] = useState(true);
+   
     const [firstRun2, setFirstRun2] = useState(true);
     const [dataIsReady, setDataIsReady] = useState(false);
     const [currentDayFound, setCurrentDayFound] = useState(false);   //sqlde bugüne ait bilgi yoksa false olarak kalir
@@ -42,11 +44,33 @@ export default function VakitScreen({ route, navigation }){
     const [dataWrited, setDataWrited] = useState(true);
     const [simulation, setSimulation] = useState(true);
     const [items, setItems] = useState([]);
+    var bos = [];
+    var tru = true;
+    var fals = false;
 
-    //const timeData = route.params;
+    useEffect(() => { //This will run whenever params change
+      
+     //your logic here
+     if(route.params){
+     console.log("efect 2");
+     setDataIsReady(fals);
+     setCurrentDayFound(fals);
+     setFirstRun(tru);
+     setSimulation(tru);
+     setTimeDataCurrentDay(bos);
+     setTimeDataSQL(bos);
+     setItems2(bos);
+     setFirstRun2(tru);
+     }
+     
+ }, [route]);
+
+    
 
     useEffect(() => {
+      
         if(firstRun){
+          console.log("worked...");
         db.transaction((tx) => {
           tx.executeSql(
             'SELECT * FROM items',
@@ -57,7 +81,9 @@ export default function VakitScreen({ route, navigation }){
               var dateTemp = getCurrentDate();
               for (let i = 0; i < results.rows.length; ++i){
                 temp.push(results.rows.item(i));
+               // console.log(dateTemp);
                 if(temp[i].miladitarihkisa == dateTemp){
+                  console.log(temp[i].miladitarihkisa);//-------------
                   temp2.push(results.rows.item(i));
                   setTimeDataCurrentDay(temp2);
                   setCurrentDayFound(true);
@@ -118,13 +144,13 @@ export default function VakitScreen({ route, navigation }){
     }
  
 
-}, []);
+}, [firstRun]);
 
 useEffect(() => {
   if(timeDataCurrentDay[0] == null || timeDataCurrentDay.length < 1){
     console.log("current day err");
   }
-  else if(firstRun2){
+  else if (firstRun2){
     console.log("safe");
      var itemsTemp = [
         { name: 'İMSAK', vakit: timeDataCurrentDay[0].imsak },
@@ -172,7 +198,11 @@ useEffect(() => {
             )}
         />
         <View style={{flex:1}}>
-            <Text>Ayet</Text>
+        <Text>{timeDataCurrentDay[0].countryname}</Text>
+        <Text>{timeDataCurrentDay[0].cityname}</Text>
+        <Text>{timeDataCurrentDay[0].districtname}</Text>
+        
+        
         </View>
     </View>
         

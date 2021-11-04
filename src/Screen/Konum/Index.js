@@ -2,6 +2,7 @@ import React, { useState,useEffect } from 'react';
 import { StyleSheet, Text, View, SafeAreaView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import RNPickerSelect from "react-native-picker-select";
 import * as SQLite from 'expo-sqlite';
+
 /*
 const ulkeURL = "https://ezanvakti.herokuapp.com/ulkeler";
 const sehirURL = "https://ezanvakti.herokuapp.com/sehirler/";
@@ -19,7 +20,8 @@ const vakitURL = "https://78ebb5ba-b073-47ac-994e-e8b6a596b8f4.mock.pstmn.io/ere
 const db = SQLite.openDatabase("db.db");
 
 db.transaction(tx => {
- /* tx.executeSql(
+  /*
+  tx.executeSql(
     "drop table items;"
   );*/
   tx.executeSql(
@@ -67,6 +69,9 @@ export default function KonumScreen ({ navigation }) {
     const [citySelectedDump, setCitySelectedDump] = useState(0);
     const [districtSelectedDump, setDistrictSelectedDump] = useState(0);
     const [firstDataGet, setFirstDataGet] = useState(true);
+    const [params, setParams] = useState(true);
+    const [goVakit, setGoVakit] = useState(false);
+    var bos = [];
     
   
     useEffect(() => {
@@ -103,7 +108,7 @@ export default function KonumScreen ({ navigation }) {
             //console.log(obj.UlkeAdiEn);
           }
         })
-
+        setLoadingCity(true);
         fetch(sehirURL+countrySelected)
         .then(setCitySelectedDump(0))
         .then(setCitySelected(0))
@@ -145,33 +150,43 @@ export default function KonumScreen ({ navigation }) {
             console.log(obj.IlceAdiEn);
           }
         })
-
+      setSalaahTimeData(bos);
         fetch(vakitURL+districtSelected)
         .then(setLoadingSalaahData(true))
+        .then(setWriteSQL(true))
       .then((response) => response.json())
       .then((json) => setSalaahTimeData(json))
       .then(setSalaahTimeData( salaahTimeData.slice(1) ))
-      .then(setDistrictSelectedDump(districtSelected));
+      .then(setDistrictSelectedDump(districtSelected))
+      .then(setLoadingSalaahData(false));
       //.then(setLoadingSalaahData(false));
       }
       if(salaahTimeData === undefined ||salaahTimeData == null || salaahTimeData.length < 2){
   
       }
-      else if(writeSQL){
-        db.transaction(tx => {tx.executeSql("delete from items");});
+      else if(writeSQL && goVakit){
+        setGoVakit(false);
+        db.transaction(tx => {
+          tx.executeSql("delete from items");
         salaahTimeData.map( data =>(
           
-        db.transaction(tx => {tx.executeSql("insert into items (aksam, ayinsekliurl, gunes, gunesbatis, gunesdogus, hicritarihkisa, hicritarihuzun, ikindi, imsak, miladitarihkisa, miladitarihuzun, ogle, yatsi, district, districtname, cityname, countryname) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);",[data.Aksam, data.AyinSekliURL, data.Gunes, data.GunesBatis, data.GunesDogus, data.HicriTarihKisa, data.HicriTarihUzun, data.Ikindi,data.Imsak, data.MiladiTarihKisa, data.MiladiTarihUzun, data.Ogle, data.Yatsi, districtSelected, districtNameData, cityNameData, countryNameData]);},null,null))
-        );
+          tx.executeSql("insert into items (aksam, ayinsekliurl, gunes, gunesbatis, gunesdogus, hicritarihkisa, hicritarihuzun, ikindi, imsak, miladitarihkisa, miladitarihuzun, ogle, yatsi, district, districtname, cityname, countryname) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);",[data.Aksam, data.AyinSekliURL, data.Gunes, data.GunesBatis, data.GunesDogus, data.HicriTarihKisa, data.HicriTarihUzun, data.Ikindi,data.Imsak, data.MiladiTarihKisa, data.MiladiTarihUzun, data.Ogle, data.Yatsi, districtSelected, districtNameData, cityNameData, countryNameData]),null,null)
+          );
+      });
+        
         console.log("SQL YAZILDI");
         setWriteSQL(false);
-        setLoadingSalaahData(false);
+       // setLoadingSalaahData(false);
+        navigation.navigate('Vakit',districtSelected);
       }
+    
+
+
     })
     return (
       <SafeAreaView style={styles.container}>
          <Text style={[styles.text,styles.largeText]}> Lütfen Ülke seçiniz</Text>
-        {isLoadingCountry ? (<ActivityIndicator /> ) : ( 
+        {isLoadingCountry ? (<View/> ) : ( 
         
          <RNPickerSelect
          style={pickerSelectStyles}
@@ -189,7 +204,7 @@ export default function KonumScreen ({ navigation }) {
                    }                         
          />
          )}
-         {isLoadingCity ? (<ActivityIndicator /> ) : ( 
+         {isLoadingCity || countrySelected != countrySelectedDump ? (<View/>) : ( 
         <View>
           <Text style={[styles.text,styles.largeText]}> Lütfen Şehir seçiniz</Text>
           <RNPickerSelect
@@ -208,7 +223,7 @@ export default function KonumScreen ({ navigation }) {
           />
         </View>
         )}
-        {isLoadingDistrict ? (<ActivityIndicator /> ) : ( 
+        {isLoadingDistrict || countrySelected != countrySelectedDump || citySelected != citySelectedDump? (<View/> ) : ( 
         <View>
           <Text style={[styles.text,styles.largeText]}> Lütfen İlçe seçiniz</Text>
           <RNPickerSelect
@@ -228,10 +243,10 @@ export default function KonumScreen ({ navigation }) {
         </View>
         )}
   
-      {isLoadingSalaahData ? (<ActivityIndicator /> ) : ( 
+      {isLoadingSalaahData ? (<View/> ) : ( 
             <TouchableOpacity 
               style={[styles.btn,styles.btnPrimary,styles.btn300]} 
-              onPress={() => navigation.navigate('Vakit')}>
+              onPress={() => setGoVakit(true)}>
                   <Text style={[styles.largeText,styles.textWhite]}>Kaydet</Text>
             </TouchableOpacity>
       )}
