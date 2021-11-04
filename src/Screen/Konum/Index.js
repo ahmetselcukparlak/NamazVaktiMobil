@@ -8,6 +8,7 @@ const sehirURL = "https://ezanvakti.herokuapp.com/sehirler/";
 const ilceURL = "https://ezanvakti.herokuapp.com/ilceler/";
 const vakitURL = "https://ezanvakti.herokuapp.com/vakitler/";
 */
+
 const ulkeURL = "https://78ebb5ba-b073-47ac-994e-e8b6a596b8f4.mock.pstmn.io/erenx/ulkeler";
 const sehirURL = "https://78ebb5ba-b073-47ac-994e-e8b6a596b8f4.mock.pstmn.io/erenx/sehirler/";
 const ilceURL = "https://78ebb5ba-b073-47ac-994e-e8b6a596b8f4.mock.pstmn.io/erenx/ilceler/";
@@ -18,9 +19,11 @@ const vakitURL = "https://78ebb5ba-b073-47ac-994e-e8b6a596b8f4.mock.pstmn.io/ere
 const db = SQLite.openDatabase("db.db");
 
 db.transaction(tx => {
-
+ /* tx.executeSql(
+    "drop table items;"
+  );*/
   tx.executeSql(
-    "create table if not exists items (id integer primary key not null, aksam text, ayinsekliurl text, gunes text, gunesbatis text, gunesdogus text, hicritarihkisa text, hicritarihuzun text, ikindi text, imsak text, miladitarihkisa text, miladitarihuzun text, ogle text, yatsi text, district integer);"
+    "create table if not exists items (id integer primary key not null, aksam text, ayinsekliurl text, gunes text, gunesbatis text, gunesdogus text, hicritarihkisa text, hicritarihuzun text, ikindi text, imsak text, miladitarihkisa text, miladitarihuzun text, ogle text, yatsi text, district integer, districtname text, cityname text, countryname text);"
   );
   //console.log("calisti");
 });
@@ -53,6 +56,9 @@ export default function KonumScreen ({ navigation }) {
     const [countryData, setCountryData] = useState([0]);
     const [cityData, setCityData] = useState([0]);
     const [districtData, setDistrictData] = useState([0]);
+    const [countryNameData, setCountryNameData] = useState([""]);//
+    const [cityNameData, setCityNameData] = useState([""]);
+    const [districtNameData, setDistrictNameData] = useState([""]);//
     const [salaahTimeData, setSalaahTimeData] = useState([0]);
     const [countrySelected, setCountrySelected] = useState(0);
     const [citySelected, setCitySelected] = useState(0);
@@ -91,10 +97,18 @@ export default function KonumScreen ({ navigation }) {
   
       }
       else if(countrySelected != countrySelectedDump){
+        countryData.map(obj => {
+          if(obj.UlkeID == countrySelected){
+            setCountryNameData(obj.UlkeAdiEn);
+            //console.log(obj.UlkeAdiEn);
+          }
+        })
+
         fetch(sehirURL+countrySelected)
         .then(setCitySelectedDump(0))
         .then(setCitySelected(0))
         .then(setDistrictData([0]))
+        .then(setLoadingSalaahData(true))
       .then((response) => response.json())
       .then((json) => setCityData(json))
       .then(setCityData( cityData.slice(1) ))
@@ -105,8 +119,16 @@ export default function KonumScreen ({ navigation }) {
   
       }
       else if(citySelected != citySelectedDump){
+        cityData.map(obj => {
+          if(obj.SehirID == citySelected){
+            setCityNameData(obj.SehirAdiEn);
+            console.log(obj.SehirAdiEn);
+          }
+        })
+
         fetch(ilceURL+citySelected)
         .then(setLoadingDistrict(true))
+        .then(setLoadingSalaahData(true))
       .then((response) => response.json())
       .then((json) => setDistrictData(json))
       .then(setDistrictData( districtData.slice(1) ))
@@ -117,6 +139,13 @@ export default function KonumScreen ({ navigation }) {
   
       }
       else if(districtSelected != districtSelectedDump){
+        districtData.map(obj => {
+          if(obj.IlceID == districtSelected){
+            setDistrictNameData(obj.IlceAdiEn);
+            console.log(obj.IlceAdiEn);
+          }
+        })
+
         fetch(vakitURL+districtSelected)
         .then(setLoadingSalaahData(true))
       .then((response) => response.json())
@@ -132,7 +161,7 @@ export default function KonumScreen ({ navigation }) {
         db.transaction(tx => {tx.executeSql("delete from items");});
         salaahTimeData.map( data =>(
           
-        db.transaction(tx => {tx.executeSql("insert into items (aksam, ayinsekliurl, gunes, gunesbatis, gunesdogus, hicritarihkisa, hicritarihuzun, ikindi, imsak, miladitarihkisa, miladitarihuzun, ogle, yatsi, district) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?);",[data.Aksam, data.AyinSekliURL, data.Gunes, data.GunesBatis, data.GunesDogus, data.HicriTarihKisa, data.HicriTarihUzun, data.Ikindi,data.Imsak, data.MiladiTarihKisa, data.MiladiTarihUzun, data.Ogle, data.Yatsi, districtSelected]);},null,null))
+        db.transaction(tx => {tx.executeSql("insert into items (aksam, ayinsekliurl, gunes, gunesbatis, gunesdogus, hicritarihkisa, hicritarihuzun, ikindi, imsak, miladitarihkisa, miladitarihuzun, ogle, yatsi, district, districtname, cityname, countryname) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);",[data.Aksam, data.AyinSekliURL, data.Gunes, data.GunesBatis, data.GunesDogus, data.HicriTarihKisa, data.HicriTarihUzun, data.Ikindi,data.Imsak, data.MiladiTarihKisa, data.MiladiTarihUzun, data.Ogle, data.Yatsi, districtSelected, districtNameData, cityNameData, countryNameData]);},null,null))
         );
         console.log("SQL YAZILDI");
         setWriteSQL(false);
@@ -148,12 +177,12 @@ export default function KonumScreen ({ navigation }) {
          style={pickerSelectStyles}
         useNativeAndroidPickerStyle={false}
         placeholder={placeholderUlke}
-                  onValueChange={(countrySelected) => setCountrySelected(countrySelected)}
+                  onValueChange={(countrySelected) => {setCountrySelected(countrySelected); if(countrySelected){console.log(countrySelected)}}}
                   items={countryData.map(obj =>({
                     
                     label: obj.UlkeAdi,
                     value: obj.UlkeID,
-                    
+                    color: 'black',
                   }
   
                   ))
@@ -171,6 +200,7 @@ export default function KonumScreen ({ navigation }) {
                   items={cityData.map(obj =>({
                     label: obj.SehirAdiEn,
                     value: obj.SehirID,
+                    color: 'black',
                   }
   
                   ))
@@ -189,6 +219,7 @@ export default function KonumScreen ({ navigation }) {
                   items={districtData.map(obj =>({
                     label: obj.IlceAdiEn,
                     value: obj.IlceID,
+                    color: 'black',
                   }
   
                   ))
