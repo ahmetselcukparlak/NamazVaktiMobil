@@ -10,10 +10,23 @@ const getCurrentDate=()=>{
   var date = new Date().getDate();
   var month = new Date().getMonth() + 1;
   var year = new Date().getFullYear();
+  var number = parseInt(date);
+  var numberMonth = parseInt(month);
 
   //Alert.alert(date + '-' + month + '-' + year);
- 
+ if(number < 10 && numberMonth >= 9){
+  return '0'+date + '.' + month + '.' + year;//format: dd-mm-yyyy;
+ }
+ else if(number < 10 && month < 10){
+  return '0'+date + '.' + '0'+month + '.' + year;//format: dd-mm-yyyy;
+ }
+ else if(number > 9 && month < 10){
+  return date + '.' + '0'+month + '.' + year;//format: dd-mm-yyyy;
+ }
+ else{
   return date + '.' + month + '.' + year;//format: dd-mm-yyyy;
+ }
+ 
 }
 
 
