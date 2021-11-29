@@ -1,20 +1,23 @@
 import React, { useState,useEffect } from 'react';
-import { StyleSheet, Text, View, SafeAreaView, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { ImageBackground,StyleSheet, Text, View, SafeAreaView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import RNPickerSelect from "react-native-picker-select";
 import * as SQLite from 'expo-sqlite';
 
-/*
+const image = require('./konum.jpg');
+
+
+
 const ulkeURL = "https://ezanvakti.herokuapp.com/ulkeler";
 const sehirURL = "https://ezanvakti.herokuapp.com/sehirler/";
 const ilceURL = "https://ezanvakti.herokuapp.com/ilceler/";
 const vakitURL = "https://ezanvakti.herokuapp.com/vakitler/";
-*/
 
+/*
 const ulkeURL = "https://78ebb5ba-b073-47ac-994e-e8b6a596b8f4.mock.pstmn.io/erenx/ulkeler";
 const sehirURL = "https://78ebb5ba-b073-47ac-994e-e8b6a596b8f4.mock.pstmn.io/erenx/sehirler/";
 const ilceURL = "https://78ebb5ba-b073-47ac-994e-e8b6a596b8f4.mock.pstmn.io/erenx/ilceler/";
 const vakitURL = "https://78ebb5ba-b073-47ac-994e-e8b6a596b8f4.mock.pstmn.io/erenx/vakitler/";
-
+*/
 
 
 const db = SQLite.openDatabase("db.db");
@@ -184,8 +187,13 @@ export default function KonumScreen ({ navigation }) {
 
     })
     return (
-      <SafeAreaView style={styles.container}>
-         <Text style={[styles.text,styles.largeText]}> Lütfen Ülke seçiniz</Text>
+     
+    <View style={styles.containerPicker}>
+      <ImageBackground source={image} resizeMode="cover" style={styles.image}>
+      <View style={styles.container}>
+       
+      
+        
         {isLoadingCountry ? (<View/> ) : ( 
         
          <RNPickerSelect
@@ -205,8 +213,8 @@ export default function KonumScreen ({ navigation }) {
          />
          )}
          {isLoadingCity || countrySelected != countrySelectedDump ? (<View/>) : ( 
-        <View>
-          <Text style={[styles.text,styles.largeText]}> Lütfen Şehir seçiniz</Text>
+        <View style={styles.pickerContainer}>
+         
           <RNPickerSelect
           style={pickerSelectStyles}
           useNativeAndroidPickerStyle={false}
@@ -225,7 +233,8 @@ export default function KonumScreen ({ navigation }) {
         )}
         {isLoadingDistrict || countrySelected != countrySelectedDump || citySelected != citySelectedDump? (<View/> ) : ( 
         <View>
-          <Text style={[styles.text,styles.largeText]}> Lütfen İlçe seçiniz</Text>
+           
+          
           <RNPickerSelect
           style={pickerSelectStyles}
           useNativeAndroidPickerStyle={false}
@@ -240,6 +249,7 @@ export default function KonumScreen ({ navigation }) {
                   ))
                     }                         
           />
+          
         </View>
         )}
   
@@ -250,16 +260,35 @@ export default function KonumScreen ({ navigation }) {
                   <Text style={[styles.largeText,styles.textWhite]}>Kaydet</Text>
             </TouchableOpacity>
       )}
-      </SafeAreaView>
+      
+     
+      </View>
+      </ImageBackground>
+      </View>
     );
 }
 
 const styles = StyleSheet.create({
+  
+  containerPicker: {
+    flex: 1,
+    backgroundColor: "#000000c0",
+   justifyContent:'center',
+    
+  },
+
     container: {
       flex: 1,
-      backgroundColor: '#fff',
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems:'center',
+     justifyContent:'center',
+     
+      
+    },
+    image: {
+      flex: 1,
+      justifyContent: "center",
+     
+      
     },
     largeText:{
       fontSize:18
@@ -291,7 +320,12 @@ const styles = StyleSheet.create({
     },
     textWhite:{
       color: '#fff',
-    }
+    },
+    pickerContainer:{
+      alignItems:'center',
+  
+    },
+
   });
   
   const pickerSelectStyles = StyleSheet.create({
@@ -305,7 +339,10 @@ const styles = StyleSheet.create({
       borderWidth: 0.5,
       borderColor: '#333',
       borderRadius: 8,
-      color: 'black',
+      color: 'white',
       paddingRight: 30,
+      backgroundColor:'black',
+      opacity:0.7,
+      
     },
   });
