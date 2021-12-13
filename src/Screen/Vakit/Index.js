@@ -12,7 +12,6 @@ const db = SQLite.openDatabase("db.db");
 
 
 const getCurrentDate=()=>{
-
   var date = new Date().getDate();
   var month = new Date().getMonth() + 1;
   var year = new Date().getFullYear();
@@ -40,7 +39,7 @@ export default function VakitScreen({ route, navigation }){
     const [timeDataSQL, setTimeDataSQL] = useState([]);              //30 günlük sqlden cekilen bilgi
     const [timeDataCurrentDay, setTimeDataCurrentDay] = useState([]); //bugüne ait olan bilgi
     const [firstRun, setFirstRun] = useState(true);
-   
+    const [nextTime, setNextTime] = useState(false);
     const [firstRun2, setFirstRun2] = useState(true);
     const [dataIsReady, setDataIsReady] = useState(false);
     const [currentDayFound, setCurrentDayFound] = useState(false);   //sqlde bugüne ait bilgi yoksa false olarak kalir
@@ -49,6 +48,7 @@ export default function VakitScreen({ route, navigation }){
     const [dataWrited, setDataWrited] = useState(true);
     const [simulation, setSimulation] = useState(true);
     const [items, setItems] = useState([]);
+
     var bos = [];
     var tru = true;
     var fals = false;
@@ -150,6 +150,9 @@ export default function VakitScreen({ route, navigation }){
  
 
 }, [firstRun]);
+const timeFunc = (time) =>{
+  return time.split(':');
+}
 
 useEffect(() => {
   if(timeDataCurrentDay[0] == null || timeDataCurrentDay.length < 1){
@@ -165,6 +168,28 @@ useEffect(() => {
         { name: 'AKŞAM', vakit: timeDataCurrentDay[0].aksam },
         { name: 'YATSI', vakit: timeDataCurrentDay[0].yatsi }
     ]
+     
+    const d = new Date();
+    var nextTime = "";
+    var imsakTime = timeFunc(timeDataCurrentDay[0].imsak);
+    var gunesTime = timeFunc(timeDataCurrentDay[0].gunes);
+    var ogleTime = timeFunc(timeDataCurrentDay[0].ogle);
+    var ikindiTime = timeFunc(timeDataCurrentDay[0].ikindi);
+    var aksamTime = timeFunc(timeDataCurrentDay[0].aksam);
+    var yatsiTime = timeFunc(timeDataCurrentDay[0].yatsi);
+    if(d.getHours() < +imsakTime[0]) nextTime=imsakTime;
+    else if(d.getHours() < +gunesTime[0]) nextTime=gunesTime;
+    else if(d.getHours() < +ogleTime[0]) nextTime=ogleTime;
+    else if(d.getHours() < +ikindiTime[0]) nextTime=ikindiTime;
+    else if(d.getHours() < +aksamTime[0])nextTime=aksamTime;
+    else if(d.getHours() < +yatsiTime[0]) nextTime=yatsiTime;
+
+    var secondCalc = d.getHours() * 60 * 60 + d.getMinutes() * 60;
+    var nextSeconds = (+nextTime[0]) * 60 * 60 + (+nextTime[1]) * 60; 
+    var prevSeconds = secondCalc; 
+    var seconds = (nextSeconds-prevSeconds);
+    setNextTime(seconds);
+
      setItems2(itemsTemp);
      setFirstRun2(false);
      setDataIsReady(true);
@@ -250,8 +275,7 @@ const [currentDate, setCurrentDate] = useState('');
 
             
          size={30}
-         until={1000}
-         onFinish={() => alert('Finished')}
+         until={nextTime}
          digitStyle={{backgroundColor: '#211F35', borderWidth: 2, borderColor: '#0A0909',borderRadius: 10, opacity:0.80}}
          digitTxtStyle={{color: '#FFFFFF'}}
          timeLabelStyle={{color: '#211F35', fontWeight: 'bold',}}
