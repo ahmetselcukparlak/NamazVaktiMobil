@@ -183,7 +183,6 @@ useEffect(() => {
     else if(d.getHours() < +ikindiTime[0]) nextTime=ikindiTime;
     else if(d.getHours() < +aksamTime[0])nextTime=aksamTime;
     else if(d.getHours() < +yatsiTime[0]) nextTime=yatsiTime;
-
     var secondCalc = d.getHours() * 60 * 60 + d.getMinutes() * 60;
     var nextSeconds = (+nextTime[0]) * 60 * 60 + (+nextTime[1]) * 60; 
     var prevSeconds = secondCalc; 
