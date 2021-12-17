@@ -256,17 +256,18 @@ const [currentDate, setCurrentDate] = useState('');
        
         {dataIsReady? (
         
-        <View>
+        <View style={styles}>
+          <View style={styles.ust}>
            <View style={styles.konum1}>
            <Text style={styles.konum1Text}>{timeDataCurrentDay[0].districtname},{timeDataCurrentDay[0].cityname},{timeDataCurrentDay[0].countryname}</Text>
           
-          </View>
+        </View>
 
           <View style={styles.vakit1}>
           <Text style={styles.saatText}>
             {currentDate}
           </Text>
-         
+         </View>
           
           </View>
             <Text style={styles.timerText}>Sıradaki Vakte Kalan Süre</Text>
@@ -300,13 +301,7 @@ const [currentDate, setCurrentDate] = useState('');
                 </View>
             )}
         />
-        <View style={{flex:1}}>
-        
-        <Text></Text>
-        <Text></Text>
-        
-        
-        </View>
+       
     </View>
         
         
@@ -317,7 +312,7 @@ const [currentDate, setCurrentDate] = useState('');
             )}
             
             </ImageBackground>
-            </View>
+      </View>
             
 
     );
@@ -343,8 +338,14 @@ const styles = StyleSheet.create({
     
 
 },
+gridView:{
+  flex:0.5,
+},
+ust:{
+  flex:0.5,
+},
   konum1:{
-      flex:0.1,
+      flex:0.3,
       
       color: 'white',
      
