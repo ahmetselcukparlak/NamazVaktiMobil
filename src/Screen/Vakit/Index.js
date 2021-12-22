@@ -48,11 +48,17 @@ export default function VakitScreen({ route, navigation }){
     const [dataWrited, setDataWrited] = useState(true);
     const [simulation, setSimulation] = useState(true);
     const [items, setItems] = useState([]);
-
+    const [simdikiVakit,setSimdikiVakit] = useState("");
+    const [sonrakiVakit,setSonrakiVakit] = useState("");
     var bos = [];
     var tru = true;
     var fals = false;
-
+    
+    useEffect(()=>{
+      if(!dataIsReady){
+        navigation.navigate("Konum");
+      }
+    });
     useEffect(() => { //This will run whenever params change
       
      //your logic here
@@ -68,9 +74,9 @@ export default function VakitScreen({ route, navigation }){
      setFirstRun2(tru);
      }
      
+     
  }, [route]);
-
-    
+   
 
     useEffect(() => {
       
@@ -177,14 +183,41 @@ useEffect(() => {
     var ikindiTime = timeFunc(timeDataCurrentDay[0].ikindi);
     var aksamTime = timeFunc(timeDataCurrentDay[0].aksam);
     var yatsiTime = timeFunc(timeDataCurrentDay[0].yatsi);
-    if(d.getHours() < +imsakTime[0]) nextTime=imsakTime;
-    else if(d.getHours() < +gunesTime[0]) nextTime=gunesTime;
-    else if(d.getHours() < +ogleTime[0]) nextTime=ogleTime;
-    else if(d.getHours() < +ikindiTime[0]) nextTime=ikindiTime;
-    else if(d.getHours() < +aksamTime[0])nextTime=aksamTime;
-    else if(d.getHours() < +yatsiTime[0]) nextTime=yatsiTime;
-    var secondCalc = d.getHours() * 60 * 60 + d.getMinutes() * 60;
-    var nextSeconds = (+nextTime[0]) * 60 * 60 + (+nextTime[1]) * 60; 
+    tempNow = d.getHours() * 60 * 60 + d.getMinutes() * 60 + d.getSeconds(); 
+    if(tempNow < ((+imsakTime[0]) * 60 * 60 + (+imsakTime[1]) * 60 + 1)) 
+    {
+      nextTime=imsakTime;
+      setSimdikiVakit("YATSI");
+      setSonrakiVakit("İmsak");
+    }
+    else if(tempNow < ((+gunesTime[0]) * 60 * 60 + (+gunesTime[1]) * 60 + 1)){
+      nextTime=gunesTime;
+      setSimdikiVakit("IMSAK");
+      setSonrakiVakit("Güneş");
+    } 
+    else if(tempNow < ((+ogleTime[0]) * 60 * 60 + (+ogleTime[1]) * 60 + 1)){
+      nextTime=ogleTime;
+      setSimdikiVakit("GÜNEŞ");
+      setSonrakiVakit("Öğle");
+    }
+    else if(tempNow < ((+ikindiTime[0]) * 60 * 60 + (+ikindiTime[1]) * 60 + 1)){
+      nextTime=ikindiTime;
+      setSimdikiVakit("ÖĞLE");
+      setSonrakiVakit("İkindi");
+    }
+    else if(tempNow< ((+aksamTime[0]) * 60 * 60 + (+aksamTime[1]) * 60 + 1)){
+      nextTime=aksamTime;
+      setSimdikiVakit("İKİNDİ");
+      setSonrakiVakit("Akşam");
+    }
+    else if(tempNow< ((+yatsiTime[0]) * 60 * 60 + (+yatsiTime[1]) * 60 + 1)) 
+    {
+      nextTime=yatsiTime;
+      setSimdikiVakit("AKŞAM");
+      setSonrakiVakit("Yatsı");
+    }
+    var secondCalc = d.getHours() * 60 * 60 + d.getMinutes() * 60 + d.getSeconds();
+    var nextSeconds = (+nextTime[0]) * 60 * 60 + (+nextTime[1]) * 60 + 1; 
     var prevSeconds = secondCalc; 
     var seconds = (nextSeconds-prevSeconds);
     setNextTime(seconds);
@@ -256,20 +289,24 @@ const [currentDate, setCurrentDate] = useState('');
        
         {dataIsReady? (
         
-        <View>
+        <View style={styles}>
+          <View style={styles.ust}>
            <View style={styles.konum1}>
            <Text style={styles.konum1Text}>{timeDataCurrentDay[0].districtname},{timeDataCurrentDay[0].cityname},{timeDataCurrentDay[0].countryname}</Text>
           
-          </View>
+        </View>
 
           <View style={styles.vakit1}>
           <Text style={styles.saatText}>
             {currentDate}
           </Text>
-         
+          <Text style={[styles.saatText,{fontSize:40}]}>
+            {simdikiVakit}
+          </Text>
+         </View>
           
           </View>
-            <Text style={styles.timerText}>Sıradaki Vakte Kalan Süre</Text>
+            <Text style={styles.timerText}>{sonrakiVakit} Vaktine Kalan Süre</Text>
             <CountDown
 
             
@@ -300,24 +337,18 @@ const [currentDate, setCurrentDate] = useState('');
                 </View>
             )}
         />
-        <View style={{flex:1}}>
-        
-        <Text></Text>
-        <Text></Text>
-        
-        
-        </View>
+       
     </View>
         
         
         ) : ( 
-          <View>
-          <Text>Yükleniyor...</Text>
+          <View style={{flex:1,alignItems: 'center',justifyContent: 'center',minWidth: "100%"}}>
+          <Text>Lütfen Konumunuzu Giriniz...</Text>
           </View>
             )}
             
             </ImageBackground>
-            </View>
+      </View>
             
 
     );
@@ -331,7 +362,6 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
   },
   vakit1:{
-    flex:0.7,
     backgroundColor:'#1A211F35',
     margin:10,
     borderWidth: 2, 
@@ -343,20 +373,19 @@ const styles = StyleSheet.create({
     
 
 },
+gridView:{
+  flex:1,
+},
+ust:{
+  flex:1,
+},
   konum1:{
-      flex:0.1,
-      
+      flex:0.5,
       color: 'white',
-     
       textAlign:'center',
       marginTop:5,
-     
-      
       alignItems: 'center',
       justifyContent: 'center',
-      
-      
-
   },
   konum1Text:{
     fontSize: 15,
@@ -377,11 +406,10 @@ timerText:{
 
 }, 
 saatText:{
-  fontSize: 30,
+  fontSize: 24,
   color: '#fff',
   fontWeight: 'bold',
   textAlign:'center',
-
 },
 
 
@@ -390,7 +418,7 @@ saatText:{
   },
   image: {
     flex: 1,
-    justifyContent: "center"
+    justifyContent: "center",
   },
   btn:{
       borderWidth:1,
