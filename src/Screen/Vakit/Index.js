@@ -54,11 +54,7 @@ export default function VakitScreen({ route, navigation }){
     var tru = true;
     var fals = false;
     
-    useEffect(()=>{
-      if(!dataIsReady){
-        navigation.navigate("Konum");
-      }
-    });
+   
     useEffect(() => { //This will run whenever params change
       
      //your logic here
@@ -73,7 +69,9 @@ export default function VakitScreen({ route, navigation }){
      setItems2(bos);
      setFirstRun2(tru);
      }
-     
+     if(!dataIsReady){
+      navigation.navigate("Konum");
+    }
      
  }, [route]);
    
@@ -377,7 +375,7 @@ ust:{
   flex:1,
 },
   konum1:{
-      flex:0.3,
+      flex:0.5,
       color: 'white',
       textAlign:'center',
       marginTop:5,
