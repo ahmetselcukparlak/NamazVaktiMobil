@@ -300,12 +300,9 @@ const [currentDate, setCurrentDate] = useState('');
           <Text style={styles.saatText}>
             {currentDate}
           </Text>
-<<<<<<< HEAD
           <Text style={[styles.saatText,{fontSize:40}]}>
             {simdikiVakit}
           </Text>
-=======
->>>>>>> 9566208a228a094c4ac2a4aaf9ee9256535a25ce
          </View>
           
           </View>
@@ -372,29 +369,15 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    
-    
-
 },
 gridView:{
-<<<<<<< HEAD
   flex:1,
 },
 ust:{
   flex:1,
-},
-  konum1:{
-      flex:0.5,
-=======
-  flex:0.5,
-},
-ust:{
-  flex:0.5,
 },
   konum1:{
       flex:0.3,
-      
->>>>>>> 9566208a228a094c4ac2a4aaf9ee9256535a25ce
       color: 'white',
       textAlign:'center',
       marginTop:5,
@@ -406,8 +389,6 @@ ust:{
     color: '#fff',
     fontWeight: 'bold',
     textAlign:'center',
-    
-
 }, 
 timerText:{
   fontSize: 20,
