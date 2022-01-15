@@ -53,9 +53,15 @@ export default function VakitScreen({ route, navigation }){
     var bos = [];
     var tru = true;
     var fals = false;
-
-    useEffect(() => {
+    
+    useEffect(()=>{
+      if(!dataIsReady){
+        navigation.navigate("Konum");
+      }
+    });
+    useEffect(() => { //This will run whenever params change
       
+     //your logic here
      if(route.params){
      console.log("efect 2");
      setDataIsReady(fals);
@@ -68,9 +74,9 @@ export default function VakitScreen({ route, navigation }){
      setFirstRun2(tru);
      }
      
+     
  }, [route]);
-
-    
+   
 
     useEffect(() => {
       
@@ -86,19 +92,23 @@ export default function VakitScreen({ route, navigation }){
               var dateTemp = getCurrentDate();
               for (let i = 0; i < results.rows.length; ++i){
                 temp.push(results.rows.item(i));
+               // console.log(dateTemp);
                 if(temp[i].miladitarihkisa == dateTemp){
-                  console.log(temp[i].miladitarihkisa);
+                  console.log(temp[i].miladitarihkisa);//-------------
                   temp2.push(results.rows.item(i));
                   setTimeDataCurrentDay(temp2);
                   setCurrentDayFound(true);
                 }
-                else if( i == results.rows.length-1 && !temp2.length){
-                  console.log("silme basladi");
+                else if( i == results.rows.length && currentDayFound == false && simulation){
+                  //i == results.rows.length && currentDayFound == false
+                  // bu durumda 30 gunluk datanin tarihi eskimis yeni data cekilmeli
                   db.transaction(tx => {
 
                     tx.executeSql(
                       "delete from items;"
                     );
+                    
+                    //console.log("calisti");
                   });
                   setSimulation(false);
                   Alert.alert(
@@ -108,9 +118,16 @@ export default function VakitScreen({ route, navigation }){
                       { text: "KAPAT", onPress: () => {return BackHandler.exitApp(); }}
                     ]
                   );
+                  
+                  
+                  //navigation.navigate('Konum');
                 }
               }
+                //console.log(results.rows.length);
+                //console.log(results.rows.item(0));
+                //console.log(timeDataSQL);
               setTimeDataSQL(temp);
+              //console.log(timeDataSQL);
     
               if (results.rows.length >= 1) {
                 setEmpty(false);
@@ -166,51 +183,44 @@ useEffect(() => {
     var ikindiTime = timeFunc(timeDataCurrentDay[0].ikindi);
     var aksamTime = timeFunc(timeDataCurrentDay[0].aksam);
     var yatsiTime = timeFunc(timeDataCurrentDay[0].yatsi);
-    tempNow = (d.getHours() * 60 * 60 + d.getMinutes() * 60 + d.getSeconds()); 
-    
-    if(tempNow < ((+gunesTime[0]) * 60 * 60 + (+gunesTime[1]) * 60 + 1) && tempNow > ((+imsakTime[0]) * 60 * 60 + (+imsakTime[1]) * 60 + 1)){
-      nextTime=gunesTime;
-      setSimdikiVakit("IMSAK");
-      setSonrakiVakit("Güneş");
-    } 
-    else if(tempNow < ((+ogleTime[0]) * 60 * 60 + (+ogleTime[1]) * 60 + 1) && tempNow > ((+gunesTime[0]) * 60 * 60 + (+gunesTime[1]) * 60 + 1)){
-      nextTime=ogleTime;
-      setSimdikiVakit("GÜNEŞ");
-      setSonrakiVakit("Öğle");
-    }
-    else if(tempNow < ((+ikindiTime[0]) * 60 * 60 + (+ikindiTime[1]) * 60 + 1) && tempNow > ((+ogleTime[0]) * 60 * 60 + (+ogleTime[1]) * 60 + 1)){
-      nextTime=ikindiTime;
-      setSimdikiVakit("ÖĞLE");
-      setSonrakiVakit("İkindi");
-    }
-    else if(tempNow< ((+aksamTime[0]) * 60 * 60 + (+aksamTime[1]) * 60 + 1) && tempNow > ((+ikindiTime[0]) * 60 * 60 + (+ikindiTime[1]) * 60 + 1)){
-      nextTime=aksamTime;
-      setSimdikiVakit("İKİNDİ");
-      setSonrakiVakit("Akşam");
-    }
-    else if(tempNow< ((+yatsiTime[0]) * 60 * 60 + (+yatsiTime[1]) * 60 + 1) && tempNow > ((+aksamTime[0]) * 60 * 60 + (+aksamTime[1]) * 60 + 1)) 
-    {
-      nextTime=yatsiTime;
-      setSimdikiVakit("AKŞAM");
-      setSonrakiVakit("Yatsı");
-    }
-    else 
+    tempNow = d.getHours() * 60 * 60 + d.getMinutes() * 60 + d.getSeconds(); 
+    if(tempNow < ((+imsakTime[0]) * 60 * 60 + (+imsakTime[1]) * 60 + 1)) 
     {
       nextTime=imsakTime;
       setSimdikiVakit("YATSI");
       setSonrakiVakit("İmsak");
     }
-    var secondCalc = d.getHours() * 60 * 60 + d.getMinutes() * 60 + d.getSeconds();
-    var nextSeconds = (+nextTime[0]) * 60 * 60 + (+nextTime[1]) * 60 + 1 ; 
-    var prevSeconds = secondCalc; 
-    
-    if(nextSeconds<prevSeconds){
-      nextSeconds = nextSeconds + 86400;
+    else if(tempNow < ((+gunesTime[0]) * 60 * 60 + (+gunesTime[1]) * 60 + 1)){
+      nextTime=gunesTime;
+      setSimdikiVakit("IMSAK");
+      setSonrakiVakit("Güneş");
+    } 
+    else if(tempNow < ((+ogleTime[0]) * 60 * 60 + (+ogleTime[1]) * 60 + 1)){
+      nextTime=ogleTime;
+      setSimdikiVakit("GÜNEŞ");
+      setSonrakiVakit("Öğle");
     }
-    
-    var seconds = (Math.abs(nextSeconds-prevSeconds));
+    else if(tempNow < ((+ikindiTime[0]) * 60 * 60 + (+ikindiTime[1]) * 60 + 1)){
+      nextTime=ikindiTime;
+      setSimdikiVakit("ÖĞLE");
+      setSonrakiVakit("İkindi");
+    }
+    else if(tempNow< ((+aksamTime[0]) * 60 * 60 + (+aksamTime[1]) * 60 + 1)){
+      nextTime=aksamTime;
+      setSimdikiVakit("İKİNDİ");
+      setSonrakiVakit("Akşam");
+    }
+    else if(tempNow< ((+yatsiTime[0]) * 60 * 60 + (+yatsiTime[1]) * 60 + 1)) 
+    {
+      nextTime=yatsiTime;
+      setSimdikiVakit("AKŞAM");
+      setSonrakiVakit("Yatsı");
+    }
+    var secondCalc = d.getHours() * 60 * 60 + d.getMinutes() * 60 + d.getSeconds();
+    var nextSeconds = (+nextTime[0]) * 60 * 60 + (+nextTime[1]) * 60 + 1; 
+    var prevSeconds = secondCalc; 
+    var seconds = (nextSeconds-prevSeconds);
     setNextTime(seconds);
-    console.log(seconds);
 
      setItems2(itemsTemp);
      setFirstRun2(false);
@@ -220,18 +230,9 @@ useEffect(() => {
    }
 });
 
-const reSetter = () => {
- 
-  navigation.reset({
-    index:0,
-    routes:[{name:'Vakit'}],
-  })
-  
-}
-
-  
 
 const [currentDate, setCurrentDate] = useState('');
+
   useEffect(() => {
     var date = new Date().getDate(); //Current Date
     var month = new Date().getMonth() + 1; //Current Month
@@ -240,14 +241,14 @@ const [currentDate, setCurrentDate] = useState('');
     var min = new Date().getMinutes(); //Current Minutes
     var sec = new Date().getSeconds(); //Current Seconds
     var day = new Date().getDay(); //Current day
-    
-    if(day == 0){day = 'Pazar'}
-    else if(day == 1){day = 'Pazartesi'}
-    else if(day == 2){day = 'Salı'}
-    else if(day == 3){day = 'Çarşamba'}
-    else if(day == 4){day = 'Perşembe'}
-    else if(day == 5){day = 'Cuma'}
-    else if(day == 6){day = 'Cumartesi'}
+
+    if(day ==1){day = 'Pazartesi'};
+    if(day ==2){day = 'Salı'};
+    if(day ==3){day = 'Çarşamba'};
+    if(day ==4){day = 'Perşembe'};
+    if(day ==5){day = 'Cuma'};
+    if(day ==6){day = 'Cumartesi'};
+    if(day ==7){day = 'Pazar'};
 
     if(month ==1){month = 'Ocak'};
     if(month ==2){month = 'Şubat'};
@@ -264,8 +265,7 @@ const [currentDate, setCurrentDate] = useState('');
     
     
 
-    if(min < 10) min = "0"+min;
-    if(hours < 10) hours = "0"+hours;
+
     setCurrentDate(
       date+' '+month+' '+day+'\n'+hours+':'+min
     );
@@ -300,9 +300,12 @@ const [currentDate, setCurrentDate] = useState('');
           <Text style={styles.saatText}>
             {currentDate}
           </Text>
+<<<<<<< HEAD
           <Text style={[styles.saatText,{fontSize:40}]}>
             {simdikiVakit}
           </Text>
+=======
+>>>>>>> 9566208a228a094c4ac2a4aaf9ee9256535a25ce
          </View>
           
           </View>
@@ -312,7 +315,6 @@ const [currentDate, setCurrentDate] = useState('');
             
          size={30}
          until={nextTime}
-         onFinish={() => reSetter()}
          digitStyle={{backgroundColor: '#211F35', borderWidth: 2, borderColor: '#0A0909',borderRadius: 10, opacity:0.80}}
          digitTxtStyle={{color: '#FFFFFF'}}
          timeLabelStyle={{color: '#211F35', fontWeight: 'bold',}}
@@ -370,8 +372,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    
+    
+
 },
 gridView:{
+<<<<<<< HEAD
   flex:1,
 },
 ust:{
@@ -379,6 +385,16 @@ ust:{
 },
   konum1:{
       flex:0.5,
+=======
+  flex:0.5,
+},
+ust:{
+  flex:0.5,
+},
+  konum1:{
+      flex:0.3,
+      
+>>>>>>> 9566208a228a094c4ac2a4aaf9ee9256535a25ce
       color: 'white',
       textAlign:'center',
       marginTop:5,
@@ -390,6 +406,8 @@ ust:{
     color: '#fff',
     fontWeight: 'bold',
     textAlign:'center',
+    
+
 }, 
 timerText:{
   fontSize: 20,

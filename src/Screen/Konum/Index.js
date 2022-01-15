@@ -79,7 +79,6 @@ export default function KonumScreen ({ navigation }) {
   
     useEffect(() => {
       if(sqlReady){
-       
         db.transaction(tx => {tx.executeSql("select id from items",
         [],
         (tx, results) => { 

@@ -2,7 +2,7 @@
   "expo": {
     "name": "Ezan Vakti",
     "slug": "EzanVakti",
-    "version": "1.0.3",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/logo.png",
     "updates": {
@@ -19,8 +19,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.parlaksoftware.EzanVakti",
-      "versionCode": 4
+      "package": "com.parlaksoftware.EzanVakti"
     },
     "web": {
       "favicon": "./assets/favicon.png"
