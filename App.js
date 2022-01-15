@@ -11,7 +11,7 @@ import Konum from './src/Screen/Konum/Index';
 export default function App() {
   return (
     <NavigationContainer>
-      <Tab.Navigator initialRouteName="Vakit" screenOptions={{
+      <Tab.Navigator initialRouteName="Konum" screenOptions={{
         tabBarActiveTintColor: '#e91e63',
       }}>
       
