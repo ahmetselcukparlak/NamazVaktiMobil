@@ -107,10 +107,6 @@ export default function VakitScreen({ route, navigation }){
                   );
                 }
               }
-<<<<<<< HEAD
-
-=======
->>>>>>> parent of 7bbce34 (Revert "Projenin Son Hali")
               setTimeDataSQL(temp);
     
               if (results.rows.length >= 1) {
