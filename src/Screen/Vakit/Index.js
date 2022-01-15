@@ -8,9 +8,6 @@ const image = require('./background.jpg');
 const db = SQLite.openDatabase("db.db");
 
 
-
-
-
 const getCurrentDate=()=>{
   var date = new Date().getDate();
   var month = new Date().getMonth() + 1;
@@ -121,9 +118,7 @@ export default function VakitScreen({ route, navigation }){
                   //navigation.navigate('Konum');
                 }
               }
-                //console.log(results.rows.length);
-                //console.log(results.rows.item(0));
-                //console.log(timeDataSQL);
+
               setTimeDataSQL(temp);
               //console.log(timeDataSQL);
     
